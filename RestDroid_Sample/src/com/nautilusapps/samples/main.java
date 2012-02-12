@@ -1,17 +1,19 @@
 package com.nautilusapps.samples;
 
+import java.util.ArrayList;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import com.nautilusapps.RestDroid.RestCall;
+import com.nautilusapps.RestDroid.RestCall.Action;
 import com.nautilusapps.RestDroid.RestConnector;
 import com.nautilusapps.RestDroid.RestResponse;
 
 public class main extends Activity {
 	private static final String TAG = "RestDroid_Sample";
 	
-	public static final String SERVER = ""; // localhost on emulator
+	public static final String SERVER = "http://10.0.2.2:3000"; // localhost:3000 on emulator
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -20,37 +22,50 @@ public class main extends Activity {
     }
     
     public void start(View view) {
-    	// INDEX
+    	
+    	// INDEX - list of people
+    	test_index();
+    	
+    	// CREATE - create a new person
+//    	test_create("Bob", "Smith", 42);
+//    	test_index(); // show results
+    	
+    	// DELETE - delete a person
+//    	test_delete(person);
+//    	test_index(); // show results
+    	
+    }
+    
+    public void test_index() {
     	Log.d(TAG, "INDEX");
-    	RestCall call = new RestCall(SERVER + "/");
+    	RestCall call = new RestCall(Action.POST, SERVER + "/people");
     	RestResponse response = RestConnector.getSharedInstance().execute(call);
     	Log.d(TAG, response.toString());
     	
+    }
+    
+    public Person test_create(String fname, String lname, int age) {
+    	Log.d(TAG, "CREATE");
+    	RestCall call = new RestCall(Action.POST, SERVER + "/people");
+//    	call.setPostValue("key=value");
+//    	call.setHttpAction(HTTPAction.POST);
+    	RestResponse response = RestConnector.getSharedInstance().execute(call);
+    	Log.d(TAG, response.toString());
     	
+    	// Handle a success response
+    	if (!response.error && response.statusCode == 200) {
+    		Person person = Person.consume(response.jsonArray.optJSONObject(0));
+    		Log.d(TAG, "Person created:" + person);
+    		return person;
+    	}
     	
+    	return null;
     }
     
     
     public void runIt(View view) {
     	
     	
-        // INDEX
-//        Log.d(TAG, "INDEX");
-//        Observer indexObserver = new Observer() {
-//
-//            @Override
-//            public void update(Observable observable, Object data) {
-//                RESTResponse response = (RESTResponse)data;
-//                if (response.hasError())
-//                    Log.e(TAG, "Index call failure");
-//                else
-//                    Log.d(TAG, "Index call success");
-//            }
-//        };
-//        RESTCall indexRestCall = new RESTCall(SERVER + "/users");
-//        indexRestCall.addObserver(indexObserver);
-//        new RESTConnector().execute(indexRestCall);
-//
 //        // NEW
 //        Log.d(TAG, "NEW");
 //        Observer newObserver = new Observer() {

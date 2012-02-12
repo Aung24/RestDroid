@@ -5,9 +5,14 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.params.ClientPNames;
+import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import android.util.Log;
 
 
@@ -54,10 +59,13 @@ public class RestConnector {
 	public RestResponse execute(RestCall call) {
 		RestResponse restResponse = new RestResponse();
 
-		// HttpParams params = new BasicHttpParams();
-		DefaultHttpClient client;
+		HttpParams params = new BasicHttpParams();
+		HttpConnectionParams.setConnectionTimeout(params, timeout);
+		params.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
+		DefaultHttpClient client = new DefaultHttpClient(params);
 
-		// Install cookies
+		if (cookieJar != null) // Install cookies
+			client.setCookieStore(cookieJar);
 
 		try {
 			HttpRequestBase request = call.getRequest();
