@@ -6,7 +6,8 @@
     <Button
         android:onClick="start"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="fill_parent"
+        android:textSize="48sp"
         android:text="Start" />
 
 </LinearLayout>
