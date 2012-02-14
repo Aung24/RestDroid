@@ -1,5 +1,6 @@
 require 'sinatra'
 require 'data_mapper'
+require 'json'
 
 #DataMapper::Logger.new($stdout, :debug)
 DataMapper.setup(:default, "sqlite::memory:")
@@ -19,10 +20,11 @@ DataMapper.auto_upgrade!
 # for debugging
 before do
   content_type :json
-#  puts '[Params]'
 #  p params
+#  p request
 end
 
+# server status
 get '/' do
   erb :home
 end
@@ -30,38 +32,36 @@ end
 # index
 get '/people' do
   @people = Person.all
-  { :people => @people.to_json }.to_json
+  { :people => @people }.to_json
 end
 
 # create
 post '/people' do
-  @person = Person.new(params)
+  @person = Person.new(params[:person])
   if @person.save
     status 201
-    { :people => @person.to_json }.to_json
+    { :person => @person }.to_json
   else
     status 400
-   bob = "{\"errors\" : { \"fname\" : \"test 123\" } }"
-   p bob
-   bob
-# { :errors => @person.errors.to_hash.to_json }.to_json
+    { :status => :failed, :errors => @person.errors.to_hash }.to_json
   end
 end
 
 # show
 get '/people/:id' do
   @person = Person.get(params[:id])
-  @person.to_json
+  { :person => @person }.to_json
 end
 
 # update
 put '/people/:id' do
   @person = Person.get(params[:id])
-  if @person.update(params)
+  if @person.update(params[:person])
     status 201
-    @person.to_json
+    { :person => @person }.to_json
   else
     status 400
+    { :status => :failed, :errors => @person.errors.to_hash }.to_json
   end
 end
 
