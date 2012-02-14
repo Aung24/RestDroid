@@ -1,7 +1,7 @@
 require 'sinatra'
 require 'data_mapper'
 
-DataMapper::Logger.new($stdout, :debug)
+#DataMapper::Logger.new($stdout, :debug)
 DataMapper.setup(:default, "sqlite::memory:")
 
 class Person
@@ -18,12 +18,12 @@ DataMapper.auto_upgrade!
 
 # for debugging
 before do
-  puts '[Params]'
-  p params
+#  puts '[Params]'
+#  p params
 end
 
 get '/' do
-  "Rest Test Server is running..."
+  erb :home
 end
 
 # index
@@ -46,7 +46,34 @@ post '/people' do
   end
 end
 
+# show
 get '/people/:id' do
-  #...
+  @person = Person.get(params[:id])
+  @person.to_json
 end
 
+# update
+put '/people/:id' do
+  @person = Person.get(params[:id])
+  if @person.update(params)
+    status 201
+    @person.to_json
+  else
+    status 400
+    @person.errors.each do |e|
+      puts e
+    end
+  end
+end
+
+#delete
+delete '/people/:id' do
+  Person.get(params[:id]).destroy
+end
+
+__END__
+
+@@ home
+
+<h1>RestServer Sample is now running...</h1>
+<h3>endpoints respond to json</h3>

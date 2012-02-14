@@ -1,7 +1,6 @@
 package com.nautilusapps.samples;
 
 import java.util.ArrayList;
-import org.json.JSONException;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
@@ -33,9 +32,21 @@ public class main extends Activity {
 		Person peep1 = test_create("Bob", "Smith", 42);
 		test_index(); // show results
 
+		// SHOW - lookup a person record
+//		Person peep2 = test_show(peep1.id);
+
+		// UPDATE - update a person record
+//		peep2.fname = "Abraham";
+//		peep2.lname = "Lincoln";
+//		peep2.age = 201;
+//		Person peep2 = test_update(peep2);
+		test_index(); // show results
+
 		// DELETE - delete a person
-		test_delete(peep1);
-		// test_index(); // show results
+		if (peep1 != null) {
+			test_delete(peep1);
+			test_index(); // show results
+		}
 
 	}
 
@@ -46,7 +57,7 @@ public class main extends Activity {
 
 		Log.d(TAG, response.toString());
 		if (!response.error && response.statusCode == 200) {
-			ArrayList<Person> people = Person.consumeList(response.jsonArray);
+			ArrayList<Person> people = Person.ConsumeList(response.jsonArray);
 			for (Person p : people)
 				Log.d(TAG, "person: " + p);
 		}
@@ -56,11 +67,13 @@ public class main extends Activity {
 		Log.d(TAG, "CREATE");
 		RestCall call = new RestCall(Action.POST, SERVER + "/people");
 		call.addParam("fname", fname);
+		call.addParam("lname", lname);
+		call.addParam("age", "" + age);
 		RestResponse response = RestConnector.getSharedInstance().execute(call);
 
 		Log.d(TAG, response.toString());
-		if (!response.error && response.statusCode == 200) {
-			Person person = Person.consumeObject(response.jsonArray.optJSONObject(0));
+		if (!response.error && response.statusCode == 201) {
+			Person person = Person.ConsumeObject(response.jsonArray.optJSONObject(0));
 			Log.d(TAG, "Person created: " + person);
 			return person;
 		}
@@ -69,7 +82,11 @@ public class main extends Activity {
 	}
 
 	public void test_delete(Person person) {
-		// ...
+		Log.d(TAG, "CREATE");
+		RestCall call = new RestCall(Action.DELETE, SERVER + "/people/" + person.id);
+		RestResponse response = RestConnector.getSharedInstance().execute(call);
+
+		Log.d(TAG, response.toString());
 	}
 
 

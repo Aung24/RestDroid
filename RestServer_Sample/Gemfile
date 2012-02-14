@@ -4,4 +4,10 @@ gem 'sinatra'
 gem 'dm-sqlite-adapter'
 gem 'data_mapper'
 
+# put in dev block
 gem 'unicorn'
+gem 'rspec'
+gem 'rack-test'
+gem 'ZenTest'
+gem 'autotest-growl'
+gem 'autotest-fsevent'

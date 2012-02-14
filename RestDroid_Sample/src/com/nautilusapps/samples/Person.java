@@ -11,26 +11,36 @@ public class Person {
 	
 	public static final String ID = "id";
 	public static final String FNAME = "fname";
+	public static final String LNAME = "lname";
+	public static final String AGE = "age";
 	
-	private String fname;
+	public String id;
+	public String fname;
+	public String lname;
+	public int age;
 	
-	public static Person consumeObject(JSONObject jo) {
+	public static Person ConsumeObject(JSONObject jo) {
 		Person object = null;
 		if (jo != null) {
 			object = new Person();
-			//...
-			object.fname = "Hello";
+			object.id = jo.optString(ID);
+			object.fname = jo.optString(FNAME);
+			object.lname = jo.optString(LNAME);
+			object.age = jo.optInt(AGE);
 		}
 		return object;
 	}
 	
-	public static ArrayList<Person> consumeList(JSONArray ja) {
+	public static ArrayList<Person> ConsumeList(JSONArray ja) {
 		ArrayList<Person> objects = new ArrayList<Person>();
+		for (int i = 0; i < ja.length(); i++) {
+			objects.add(Person.ConsumeObject(ja.optJSONObject(i)));
+		}
 		return objects;
 	}
 	
 	public String toString() {
-		return fname;
+		return fname + " " + lname + " - " + age;
 	}
 
 }

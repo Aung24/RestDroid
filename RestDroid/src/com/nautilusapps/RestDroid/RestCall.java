@@ -2,13 +2,12 @@ package com.nautilusapps.RestDroid;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.json.JSONException;
-import org.json.JSONObject;
-import android.util.Log;
 
 
 /*
@@ -81,6 +80,9 @@ public class RestCall {
 			} else {
 				((HttpPost) request).setEntity(new StringEntity(postValue));
 			}
+			break;
+		case DELETE:
+			request = new HttpDelete(getUrl());
 			break;
 		}
 		addRequestHeaders(request);
