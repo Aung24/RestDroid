@@ -9,7 +9,7 @@ class Person
   property :id,         Serial
   property :fname,      String, :required => true
   property :lname,      String
-  property :age,        Integer
+  property :age,        Integer, :required => true
   property :create_at,  DateTime
   property :updated_at, DateTime
 end
@@ -18,6 +18,7 @@ DataMapper.auto_upgrade!
 
 # for debugging
 before do
+  content_type :json
 #  puts '[Params]'
 #  p params
 end
@@ -29,7 +30,7 @@ end
 # index
 get '/people' do
   @people = Person.all
-  @people.to_json
+  { :people => @people.to_json }.to_json
 end
 
 # create
@@ -37,12 +38,13 @@ post '/people' do
   @person = Person.new(params)
   if @person.save
     status 201
-    @person.to_json
+    { :people => @person.to_json }.to_json
   else
     status 400
-    @person.errors.each do |e|
-      puts e
-    end
+   bob = "{\"errors\" : { \"fname\" : \"test 123\" } }"
+   p bob
+   bob
+# { :errors => @person.errors.to_hash.to_json }.to_json
   end
 end
 
@@ -60,9 +62,6 @@ put '/people/:id' do
     @person.to_json
   else
     status 400
-    @person.errors.each do |e|
-      puts e
-    end
   end
 end
 
