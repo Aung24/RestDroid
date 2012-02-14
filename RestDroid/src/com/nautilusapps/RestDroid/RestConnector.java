@@ -34,8 +34,9 @@ public class RestConnector {
 
 	public static final int DEFAULT_TIMEOUT = 3000;
 
+	private static boolean Logging = false;
+	private static int Timeout = DEFAULT_TIMEOUT;
 	private CookieStore cookieJar;
-	private int timeout;
 
 	// Singleton management
 	public static RestConnector sharedInstance = null;
@@ -48,7 +49,14 @@ public class RestConnector {
 
 	public RestConnector() {
 		this.cookieJar = null; // don't set it up unless you need it
-		this.timeout = DEFAULT_TIMEOUT;
+	}
+
+	public static void EnableLogging(boolean enabled) {
+		Logging = enabled;
+	}
+
+	public void setTimeout(int timeout) {
+		Timeout = timeout;
 	}
 
 	public void setCookie(Cookie cookie) {
@@ -57,19 +65,15 @@ public class RestConnector {
 		cookieJar.addCookie(cookie);
 	}
 
-	public void setTimeout(int timeout) {
-		this.timeout = timeout;
-	}
+	// public CookieStore getCookieStore() {
+	// return cookieJar;
+	// }
 
-	public CookieStore getCookieStore() {
-		return cookieJar;
-	}
-
-	public RestResponse execute(RestCall call) {
+	public RestResponse execute(HttpRequestBase request) {
 		RestResponse restResponse = new RestResponse();
 
 		HttpParams params = new BasicHttpParams();
-		HttpConnectionParams.setConnectionTimeout(params, timeout);
+		HttpConnectionParams.setConnectionTimeout(params, Timeout);
 		params.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
 		DefaultHttpClient client = new DefaultHttpClient(params);
 
@@ -77,7 +81,6 @@ public class RestConnector {
 			client.setCookieStore(cookieJar);
 
 		try {
-			HttpRequestBase request = call.getRequest();
 			logCallDetails(request);
 			HttpResponse response = client.execute(request);
 			restResponse.setResponse(response);
@@ -91,11 +94,14 @@ public class RestConnector {
 	}
 
 	private void logCallDetails(HttpRequestBase request) {
+		if (!Logging)
+			return;
+
 		int cookieCount = 0;
 		if (cookieJar != null)
 			cookieCount = cookieJar.getCookies().size();
 		String message = "[" + request.getMethod() + "] " + request.getURI().toString() + " ["
-				+ timeout + "ms timeout";
+				+ Timeout + "ms timeout";
 		if (cookieCount > 0)
 			message += cookieCount + " - cookies]";
 		else
