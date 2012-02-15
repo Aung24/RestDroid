@@ -57,7 +57,7 @@ public class main extends Activity {
 
 	public void test_index() {
 		Log.d(TAG, "INDEX");
-		RestResponse response = RestDroid.get(SERVER + "/people");
+		RestResponse response = RestDroid.Get(SERVER + "/people");
 
 		Log.d(TAG, response.toString());
 		if (!response.error && response.statusCode == 200) {
@@ -69,8 +69,8 @@ public class main extends Activity {
 
 	public Person test_create(String fname, String lname, int age) {
 		Log.d(TAG, "CREATE");
-		String postData = "fname=Barbados&lname=Slim&age=42";
-		RestResponse response = RestDroid.post(SERVER + "/people", postData);
+		RestResponse response = RestDroid.Post(SERVER + "/people", 
+				"person[fname]=Barbados", "person[lname]=Slim", "person[age]=42");
 
 		Log.d(TAG, response.toString());
 		if (!response.error && response.statusCode == 201) {
@@ -83,10 +83,10 @@ public class main extends Activity {
 
 	public Person test_show(String id) {
 		Log.d(TAG, "SHOW");
-		RestResponse response = RestDroid.get(SERVER + "/people/" + id);
+		RestResponse response = RestDroid.Get(SERVER + "/people/" + id);
 		
 		Log.d(TAG, response.toString());
-		if (!response.error && response.statusCode == 201) {
+		if (!response.error && response.statusCode == 200) {
 			Person person = Person.ConsumeObject(response.jsonArray.optJSONObject(0));
 			Log.d(TAG, "Person looked up: " + person);
 			return person;
@@ -96,10 +96,8 @@ public class main extends Activity {
 	
 	public Person test_update(Person person) {
 		Log.d(TAG, "UPDATE");
-		String postData = "fname=" + person.fname;
-		postData += "&lname=" + person.lname;
-		postData += "&age=" + person.age;
-		RestResponse response = RestDroid.put(SERVER + "/people/" + person.id, postData);
+		RestResponse response = RestDroid.Put(SERVER + "/people/" + person.id, 
+				"person[fname]=" + person.fname, "person[lname]=" + person.lname, "person[age]=" + person.age);
 		
 		Log.d(TAG, response.toString());
 		if (!response.error && response.statusCode == 201) {
@@ -112,7 +110,7 @@ public class main extends Activity {
 
 	public boolean test_delete(Person person) {
 		Log.d(TAG, "DELETE");
-		RestResponse response = RestDroid.delete(SERVER + "/people/" + person.id);
+		RestResponse response = RestDroid.Delete(SERVER + "/people/" + person.id);
 
 		Log.d(TAG, response.toString());
 		return (!response.error && response.statusCode == 200);

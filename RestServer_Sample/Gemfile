@@ -7,6 +7,7 @@ gem 'data_mapper'
 # put in dev block
 gem 'unicorn'
 gem 'rspec'
+gem 'ruby-debug19'
 gem 'rack-test'
 gem 'ZenTest'
 gem 'autotest-growl'

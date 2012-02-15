@@ -23,9 +23,10 @@ describe 'Rest Server' do
     get '/people'
     last_response.status.should == 200
     body = JSON.parse(last_response.body)
+    p body
     body.should include('people')
-    body['people'][0].should have(6).items
-    body['people'][0]['fname'].should == @person.fname
+    body['people'][0]['person'].should have(6).items
+    body['people'][0]['person']['fname'].should == @person.fname
   end
 
   it "should create a new person" do

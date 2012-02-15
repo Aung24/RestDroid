@@ -20,8 +20,8 @@ DataMapper.auto_upgrade!
 # for debugging
 before do
   content_type :json
-#  p params
 #  p request
+#  p params
 end
 
 # server status
@@ -32,7 +32,9 @@ end
 # index
 get '/people' do
   @people = Person.all
-  { :people => @people }.to_json
+  peeps = Array.new
+  @people.each { |person| peeps << { :person => person } }
+  { :people => peeps }.to_json
 end
 
 # create
