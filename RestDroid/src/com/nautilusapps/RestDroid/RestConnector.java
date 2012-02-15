@@ -48,7 +48,7 @@ public class RestConnector {
 	}
 
 	public RestConnector() {
-		this.cookieJar = null; // don't set it up unless you need it
+		this.cookieJar = new BasicCookieStore();
 	}
 
 	public static void EnableLogging(boolean enabled) {
@@ -60,14 +60,12 @@ public class RestConnector {
 	}
 
 	public void setCookie(Cookie cookie) {
-		if (cookieJar == null)
-			cookieJar = new BasicCookieStore();
 		cookieJar.addCookie(cookie);
 	}
 
-	// public CookieStore getCookieStore() {
-	// return cookieJar;
-	// }
+	public CookieStore getCookieStore() {
+		return cookieJar;
+	}
 
 	public RestResponse execute(HttpRequestBase request) {
 		RestResponse restResponse = new RestResponse();
@@ -76,9 +74,7 @@ public class RestConnector {
 		HttpConnectionParams.setConnectionTimeout(params, Timeout);
 		params.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
 		DefaultHttpClient client = new DefaultHttpClient(params);
-
-		if (cookieJar != null) // Install cookies
-			client.setCookieStore(cookieJar);
+		client.setCookieStore(cookieJar);
 
 		try {
 			logCallDetails(request);

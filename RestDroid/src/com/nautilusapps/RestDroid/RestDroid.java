@@ -9,8 +9,8 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
+import android.util.Log;
 
 
 public class RestDroid {
@@ -23,12 +23,17 @@ public class RestDroid {
 		return RestConnector.getSharedInstance().execute(request);
 	}
 
-	private static UrlEncodedFormEntity CompilePostData(String... params) throws UnsupportedEncodingException {
+	private static UrlEncodedFormEntity CompilePostData(String... params)
+			throws UnsupportedEncodingException {
 		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 		for (String param : params) {
-			String[] parts = param.split("=");
-			if (parts.length == 2)
-				nameValuePairs.add(new BasicNameValuePair(parts[0], parts[1]));
+			int i = param.indexOf("=");
+			if (i > 0) {
+				String key = param.substring(0, i);
+				String value = param.substring(i + 1);
+				if (key != null && value != null)
+					nameValuePairs.add(new BasicNameValuePair(key, value));
+			}
 		}
 		return new UrlEncodedFormEntity(nameValuePairs);
 	}
