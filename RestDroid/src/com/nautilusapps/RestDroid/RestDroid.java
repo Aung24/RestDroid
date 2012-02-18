@@ -1,5 +1,6 @@
 package com.nautilusapps.RestDroid;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,14 +10,13 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.message.BasicNameValuePair;
-import android.util.Log;
 
 
 public class RestDroid {
-
-	// request.addHeader("Accept", "application/json");
-	// request.addHeader("Content-Type", "application/json");
 
 	public static RestResponse Get(String url) {
 		HttpGet request = new HttpGet(url);
@@ -36,6 +36,30 @@ public class RestDroid {
 			}
 		}
 		return new UrlEncodedFormEntity(nameValuePairs);
+	}
+
+	public static RestResponse Post(String url, ProgressDelegate delegate, String filePartName, File file, String... params) {
+		HttpPost request = new HttpPost(url);
+		try {
+			ProgressMultipartEntity entity = new ProgressMultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE, delegate);
+			for (String param : params) {
+				int i = param.indexOf("=");
+				if (i > 0) {
+					String key = param.substring(0, i);
+					String value = param.substring(i + 1);
+					if (key != null && value != null)
+						entity.addPart(key, new StringBody(value));
+				}
+			}
+			if (file != null)
+				entity.addPart(filePartName, new FileBody(file));
+			request.setEntity(entity);
+		} catch (UnsupportedEncodingException e) {
+			RestResponse response = new RestResponse();
+			response.setException(e);
+			return response;
+		}
+		return RestConnector.getSharedInstance().execute(request);
 	}
 
 	public static RestResponse Post(String url, String... params) {
