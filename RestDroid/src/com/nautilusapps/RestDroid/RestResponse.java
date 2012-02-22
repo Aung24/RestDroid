@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpResponse;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -53,7 +54,7 @@ public class RestResponse {
 			InputStream content = response.getEntity().getContent();
 			if (destination != null) {
 
-				FileOutputStream fs = new FileOutputStream(destination);
+				FileOutputStream fs = FileUtils.openOutputStream(destination);
 				byte[] buffer = new byte[4096];
 				int len1 = 0;
 				long total = 0;
