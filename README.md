@@ -2,7 +2,8 @@
 ### Simple Rest Library for Android
 
 #### Example Usage:
-`RestResponse response = RestDroid.Post(SERVER + "/people", "person[fname]=Barbados", "person[lname]=Slim", "person[age]=42");`
+`RestResponse response = RestDroid.Post(SERVER + "/people", 
+    "person[fname]=Barbados", "person[lname]=Slim", "person[age]=42");`
 
 #### More Examples
 ##### See `RestDroid_Sample` project

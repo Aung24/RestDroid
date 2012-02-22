@@ -1,14 +1,23 @@
 package com.nautilusapps.RestDroid;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.io.Writer;
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.cookie.Cookie;
+import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
@@ -59,8 +68,9 @@ public class RestConnector {
 		return cookieJar;
 	}
 
-	public RestResponse execute(HttpRequestBase request) {
-		RestResponse restResponse = new RestResponse();
+	public RestResponse execute(HttpRequestBase request, RestResponse restResponse) {
+		if (restResponse == null)
+			restResponse = new RestResponse();
 
 		HttpParams params = new BasicHttpParams();
 		HttpConnectionParams.setConnectionTimeout(params, Timeout);
@@ -99,27 +109,27 @@ public class RestConnector {
 		for (Header h : request.getAllHeaders())
 			Log.d(TAG, h.toString());
 
-//		if (request instanceof HttpPost) {
-//			HttpEntity entity = ((HttpPost) request).getEntity();
-//			if (entity != null && !(entity instanceof MultipartEntity)) {
-//				try {
-//					InputStream is = entity.getContent();
-//					if (is != null) {
-//						Writer writer = new StringWriter();
-//						char[] buffer = new char[1024];
-//						Reader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-//						int n;
-//						while ((n = reader.read(buffer)) != -1) {
-//							writer.write(buffer, 0, n);
-//						}
-//						is.close();
-//						Log.d(TAG, writer.toString());
-//					}
-//				} catch (IOException e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		}
+		if (request instanceof HttpPost) {
+			HttpEntity entity = ((HttpPost) request).getEntity();
+			if (entity != null && !(entity instanceof MultipartEntity)) {
+				try {
+					InputStream is = entity.getContent();
+					if (is != null) {
+						Writer writer = new StringWriter();
+						char[] buffer = new char[1024];
+						Reader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+						int n;
+						while ((n = reader.read(buffer)) != -1) {
+							writer.write(buffer, 0, n);
+						}
+						is.close();
+						Log.d(TAG, writer.toString());
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 
 	}
 

@@ -1,6 +1,8 @@
 package com.nautilusapps.RestDroid;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -21,6 +23,8 @@ public class RestResponse {
 	public Exception exception;
 	public HttpResponse response;
 	public boolean error;
+	public File destination;
+	public ProgressDelegate delegate;
 	public JSONArray jsonArray;
 	public String body;
 	public int statusCode;
@@ -28,6 +32,15 @@ public class RestResponse {
 	public RestResponse() {
 		// Empty response only contains an error
 		this.error = true;
+		this.destination = null;
+		this.delegate = null;
+	}
+	
+	public RestResponse(File destination, ProgressDelegate delegate) {
+		// Empty response only contains an error
+		this.error = true;
+		this.destination = destination;
+		this.delegate = delegate;
 	}
 
 	public void setResponse(HttpResponse response) {
@@ -36,34 +49,57 @@ public class RestResponse {
 			this.error = false;
 			this.statusCode = response.getStatusLine().getStatusCode();
 
-			// Extract data from HTTP response
-			try {
-				InputStream content = response.getEntity().getContent();
-				this.body = convertStreamToString(content);
-				content.close();
+			long length = response.getEntity().getContentLength();
+			InputStream content = response.getEntity().getContent();
+			if (destination != null) {
 
-				// Log HTTP response
-				Log.d(TAG, "Response: " + statusCode + " :: " + this.body);
+				FileOutputStream fs = new FileOutputStream(destination);
+				byte[] buffer = new byte[4096];
+				int len1 = 0;
+				long total = 0;
+				while ((len1 = content.read(buffer)) > 0) {
+					total += len1; // total = total + len1
+					fs.write(buffer, 0, len1);
 
-				// Try first to convert to a JSON array as an array
-				if (body != null && body != "") {
-					try {
-						this.jsonArray = new JSONArray(body);
-					} catch (JSONException e) {
-						try {
-							// Next try to convert as a JSON object
-							this.jsonArray = new JSONArray().put(new JSONObject(body));
-						} catch (JSONException e2) {
-							// Dang, couldn't make sense of the body
-							setException(e2);
-							Log.d(TAG, "Could not parse body content as JSON: " + body);
-						}
+					if (delegate != null) {
+						delegate.updateProgress((int) ((total * 100) / length));
+
+						// Did we get stopped?
+						if (delegate.hasCanceled())
+							break;
 					}
 				}
-			} catch (IllegalStateException e) {
-				setException(e);
-			} catch (IOException e) {
-				setException(e);
+				fs.close();
+
+			} else {
+				// Extract string data from HTTP response
+				try {
+					this.body = convertStreamToString(content);
+					content.close();
+
+					// Log HTTP response
+					Log.d(TAG, "Response: " + statusCode + " :: " + this.body);
+
+					// Try first to convert to a JSON array as an array
+					if (body != null && body != "") {
+						try {
+							this.jsonArray = new JSONArray(body);
+						} catch (JSONException e) {
+							try {
+								// Next try to convert as a JSON object
+								this.jsonArray = new JSONArray().put(new JSONObject(body));
+							} catch (JSONException e2) {
+								// Dang, couldn't make sense of the body
+								setException(e2);
+								Log.d(TAG, "Could not parse body content as JSON: " + body);
+							}
+						}
+					}
+				} catch (IllegalStateException e) {
+					setException(e);
+				} catch (IOException e) {
+					setException(e);
+				}
 			}
 		} catch (Exception e) {
 			setException(e); // don't kill the app on error, just pass on the
