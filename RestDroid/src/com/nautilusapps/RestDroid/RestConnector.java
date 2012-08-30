@@ -21,6 +21,7 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import android.util.Log;
@@ -34,9 +35,11 @@ public class RestConnector {
 	public static final String TAG = "RestConnector";
 
 	public static final int DEFAULT_TIMEOUT = 3000;
+	public static final String DEFAULT_USER_AGENT = "RestDroid for Android";
 
 	private static boolean Logging = false;
 	private static int Timeout = DEFAULT_TIMEOUT;
+	private static String UserAgent = DEFAULT_USER_AGENT;
 	private CookieStore cookieJar;
 
 	// Singleton management
@@ -46,6 +49,10 @@ public class RestConnector {
 		if (sharedInstance == null)
 			sharedInstance = new RestConnector();
 		return sharedInstance;
+	}
+	
+	public static void resetInstance() {
+		sharedInstance = null;
 	}
 
 	public RestConnector() {
@@ -63,6 +70,10 @@ public class RestConnector {
 	public void setCookie(Cookie cookie) {
 		cookieJar.addCookie(cookie);
 	}
+	
+	public void setUserAgent(String useragent) {
+		UserAgent = useragent;
+	}
 
 	public CookieStore getCookieStore() {
 		return cookieJar;
@@ -75,6 +86,7 @@ public class RestConnector {
 		HttpParams params = new BasicHttpParams();
 		HttpConnectionParams.setConnectionTimeout(params, Timeout);
 		params.setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
+		params.setParameter(CoreProtocolPNames.USER_AGENT, UserAgent);
 		DefaultHttpClient client = new DefaultHttpClient(params);
 		client.setCookieStore(cookieJar);
 

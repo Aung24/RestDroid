@@ -37,12 +37,14 @@ public class ProgressMultipartEntity extends MultipartEntity {
 		}
 	
 		private static final int DELAY_SIZE = 1024;
-		private void updateDelegate() {
+		private void updateDelegate() throws IOException {
 			if (delegateDelay > DELAY_SIZE) {
 				delegateDelay = 0;
 				int percent = (int)(100.0 * ((float)transferred / (float)contentLength));
 				delegate.updateProgress(percent);
 			}
+			if (delegate.hasCanceled())
+				throw new IOException("Upload Canceled");
 		}
 
 		@Override
